@@ -1,81 +1,53 @@
-
-***Q.1*** : **what was the cheapest most avaliable listing in Jan 2024? (the cheapest listing which was avaliable the most of the month) ?**
-
-  ```PLpgSQL
-  	with CTE As (
-  		select "listingKey" , count(available) as no_of_available_days_in_june 
-  		from public."Reservation_Fact" as RFact
-  		inner join public."Date_Dim" as DDim
-  		on  DDim.date_key = RFact."date_key" 
-  		where DDim.month_name ='January' and DDim.year= 2024 and RFact.available= TRUE 
-  		group by "listingKey"
-  		)	
+# AirBnB-Data-Engineering-Project
+## Overview
+- This project offers an end-to-end data pipeline. It begins with importing CSV data into PostgreSQL as a **staging area**. Next, **Python** is used to extract data from the staging area, followed by transformation using the Pandas library. The transformed data is loaded back into a **designed data warehouse** on **PostgreSQL**. Finally, actionable business insights are derived from the loaded data.
   
-  	select listing_id,no_of_available_days_in_june ,price as general_price, name, neighborhood_overview, picture_url, host_id, host_url, host_name, host_since, host_location, host_about, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_picture_url, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_identity_verified, neighbourhood_cleansed, neighbourhood_group_cleansed, latitude, longitude, property_type, room_type, accommodates, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, first_review, last_review, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value, license, instant_bookable, reviews_per_month
-  	from public."Listing_Dim" as LDim
-  	inner join CTE
-  	on LDim."listingKey" = CTE."listingKey"
-  	where no_of_available_days_in_june > 15
-  	order by general_price ,no_of_available_days_in_june desc 
-  ```
+- The data engineering pipeline of the project:
 
-	
-***Q.2*** : **What are the most reviewed listings in November 2023 ?**
+![Screenshot 2024-02-22 070320](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/assets/74055031/73b4422f-5faa-4ee4-895f-21beecf04926)
 
-```PLpgSQL
-	select "listingKey" ,count ("listingKey") as No_of_Reviews
-	from public."Review_Fact" as RF
-	inner join public."Date_Dim" as DD
-	on DD.date_key=RF.date_key
-	where DD.month_name ='November' and year = 2023
-	group by "listingKey"
-	order by No_of_Reviews desc
-```
+## Source system 
+- Airbnb is an American company operating an online marketplace for short- and long-term homestays and experiences. The company acts as a broker and charges a commission from each booking.
+- The data of Airbnb typically includes information related to listings, bookings, reviews, host profiles, guest profiles, pricing, availability calendars, and various other transactional and operational data associated with the Airbnb platform.This data helps Airbnb manage its marketplace, facilitate transactions between hosts and guests, improve user experience, and make data-driven decisions to enhance its services.
+- For detailed data profiling :
+[Click here](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/tree/main/Data_Profiling)
 
-	
-***Q.3*** : **What is the most expensive neighborhood in Barcelona ?**
+## Staging Area
+- The staging area involves extracting data from CSV files and loading it into a PostgreSQL database. During this process, careful consideration is given to data types for memory optimization.
+- Attached is a photo showing the relations between tables:
+  ![Staging Layer ](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/assets/74055031/8ab8cb13-9be9-4c53-a77d-dda8aad90d4b)
 
+## Designing The Data Warehouse
+- appling **Dimensional modeling** to design a **galaxy-schema** model depending on our business processes
+- ***Dimensional Modeling steps*** :
+  - **(1) The business process** revolves around leveraging the data warehouse to gain insights and make informed decisions related to the asked business questions ,Most fact tables focus on the results of a single business process
+  - **(2) Identifying Granularity**:
+      - Fact Tables: Data stored at the daily level, with each row representing a specific listing on a specific date.
+      - Dimension Tables: Aggregate or summarize data at varying levels of granularity, based on specific dimensions and metrics included in each table. For example, summarizing key metrics such as price, number of reviews, and availability at the listing level.
+  - **(3) Identifying Dimensions**:
+    - `Listing Dimension`: Includes all attributes related to listings such as ID, name, description, host details, location, property type, room type, and amenities.
+    - `Date Dimension`: Represents date-related attributes such as date, month, year, and day of the week for analyzing trends and patterns over time.
+  - **(4) Identifying Facts**:
+    - `Reservations Fact`: Contains data related to listing availability, price, and minimum/maximum nights for each listing on specific dates.
+    - `Reviews Fact`: Stores data related to reviews for each listing, including review ID, date, reviewer details, and comments.
+ - [See the Data Warehouse Design here](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/tree/main/Data%20Warehouse%20Design#readme)
 
-```PLpgSQL
-  select neighbourhood_cleansed  , avg(price) as avarge_listing_prices_in_this_neighbourhood
-	from public."Listing_Dim"
-	group by neighbourhood_cleansed
-	order by avarge_listing_prices_in_this_neighbourhood desc
-```
+## ETL process:
+- This process includes extracting data from the staging layer, converting each table into a **pandas DataFrame**, performing transformations such as removing leading and trailing whitespace from columns, changing some column datatypes to match the data warehouse, adding surrogate keys, etc. Then, the data is loaded back to the data warehouse on PostgreSQL.
+- You can find the code for the ETL process in [this](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/blob/main/ETL%20using%20python%20script.ipynb) jupyter notebook file
 
-***Q.4 : Recommend me a listing if I am***
-
-- A man with his wife and 2 children looking for a week vacation around March 2024.
+## Actionable Business Insights
+- Now, you can turn business questions into actionable business insights.
+- You can find the questions, along with their queries used to answer them, and the CSV files containing these insights in [this folder](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/tree/main/Actionable%20Business%20Insights)
  
-```PLpgSQL
-  with CTE as (
-		select "listingKey" ,full_date as available_date ,exact_price as exact_price_for_booking_this_date
-		From public."Reservation_Fact" as RF
-		inner join public."Date_Dim" as DD
-		on DD.date_key=RF.date_key
-		where available=true and minimum_nights>=7 and month_name='March' 
-		)
-	select  listing_id,available_date, exact_price_for_booking_this_date ,name,neighborhood_overview, picture_url, host_id, host_url, host_name, host_since, host_location, host_about, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_picture_url, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_identity_verified, neighbourhood_cleansed, neighbourhood_group_cleansed, latitude, longitude, property_type, room_type, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, first_review, last_review, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value, license, instant_bookable, reviews_per_month
-	from public."Listing_Dim" as LD
-	inner join CTE 
-	on LD."listingKey" =CTE."listingKey"
-	where accommodates=4
-```
+      
 
-- A colleage student with 4 other students who don't have alot of money and want to spend the new year's eve in Barcelona with perhaps two days before and/or two days after
-```PLpgSQL
-with CTE as (
-		select "listingKey" ,full_date as available_date ,exact_price as exact_price_for_booking_this_date
-		From public."Reservation_Fact" as RF
-		inner join public."Date_Dim" as DD
-		on DD.date_key=RF.date_key
-		where available=true and minimum_nights>=3 
-		and full_date BETWEEN '2023-12-30' AND '2024-01-01'
-		)
-	select listing_id,available_date, exact_price_for_booking_this_date ,name,neighborhood_overview, picture_url, host_id, host_url, host_name, host_since, host_location, host_about, host_response_time, host_response_rate, host_acceptance_rate, host_is_superhost, host_picture_url, host_neighbourhood, host_listings_count, host_total_listings_count, host_verifications, host_identity_verified, neighbourhood_cleansed, neighbourhood_group_cleansed, latitude, longitude, property_type, room_type, number_of_reviews, number_of_reviews_ltm, number_of_reviews_l30d, first_review, last_review, review_scores_rating, review_scores_accuracy, review_scores_cleanliness, review_scores_checkin, review_scores_communication, review_scores_location, review_scores_value, license, instant_bookable, reviews_per_month
-	from public."Listing_Dim" as LD
-	inner join CTE 
-	on LD."listingKey" =CTE."listingKey"
-	where accommodates=5 
-	order by exact_price_for_booking_this_date asc
-```
+
+  
+
+  
+
+  
+
+
+
