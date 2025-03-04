@@ -6,12 +6,6 @@
 
 ![Screenshot 2024-02-22 070320](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/assets/74055031/73b4422f-5faa-4ee4-895f-21beecf04926)
 
-## Source system 
-- Airbnb is an American company operating an online marketplace for short- and long-term homestays and experiences. The company acts as a broker and charges a commission from each booking.
-- The data of Airbnb typically includes information related to listings, bookings, reviews, host profiles, guest profiles, pricing, availability calendars, and various other transactional and operational data associated with the Airbnb platform.This data helps Airbnb manage its marketplace, facilitate transactions between hosts and guests, improve user experience, and make data-driven decisions to enhance its services.
-- For detailed data profiling :
-[Click here](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/tree/main/Data_Profiling)
-
 ## Designing The Data Warehouse
 - appling **Dimensional modeling** to design a **galaxy-schema** model depending on our business processes
 - ***Dimensional Modeling steps*** :
