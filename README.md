@@ -1,4 +1,4 @@
-# AirBnB-Data-Engineering-Project
+# AirBnB-Data-Engineering-Pipeline
 ## Overview
 - This project offers an end-to-end data pipeline. It begins with importing CSV data into PostgreSQL as a **staging area**. Next, **Python** is used to extract data from the staging area, followed by transformation using the Pandas library. The transformed data is loaded back into a **designed data warehouse** on **PostgreSQL**. Finally, actionable business insights are derived from the loaded data.
   
