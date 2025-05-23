@@ -22,7 +22,3 @@
 
 ## ETL process:
 - This process includes extracting data from the staging layer, converting each table into a **pandas DataFrame**, performing transformations such as removing leading and trailing whitespace from columns, changing some column datatypes to match the data warehouse, adding surrogate keys, etc. Then, the data is loaded back to the data warehouse on PostgreSQL.
-
-## Actionable Business Insights
-- Now, you can turn business questions into actionable business insights.
-- You can find the questions, along with their queries used to answer them, and the CSV files containing these insights in [this folder](https://github.com/Arwa0/AirBnB-Data-Engineering-Project/tree/main/Actionable%20Business%20Insights)
